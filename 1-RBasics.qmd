@@ -1,7 +1,7 @@
 ---
 title: 'Worksheet 1: R Basics'
-author: ""
-date: ""
+author: "Paige Magoto"
+date: "1/25/2024"
 ---
 _This is the first in a series of worksheets for History 8510 at Clemson University. The goal of these worksheets is simple: practice, practice, practice. The worksheet introduces concepts and techniques and includes prompts for you to practice in this interactive document. When you are finished, you should change the author name (above), knit your document to a pdf, and upload it to canvas._
 
@@ -27,9 +27,16 @@ Numbers can be used to do arithmetic.
 ```
 
 (@) You try, multiple two numbers. 
+```{r}
+2 * 2
+```
 
 
 (@) Can you multiply two numbers and then divide by the result? 
+```{r}
+(2 * 2) / 1
+```
+
 
 The next type of value is a **string**. Strings are lines of text. Sometimes these are referred to as character vectors. To create a string, you add text between two quotation marks. For example: 
 ```{r}
@@ -38,7 +45,7 @@ The next type of value is a **string**. Strings are lines of text. Sometimes the
 
 (@) Try to create your own string.
 ```{r}
-
+"Paige Magoto"
 ```
 
 You can't add strings using `+` like you can numbers. But there is a function called `paste()` which concatenates character vectors into one. This function is _very_ useful and one you'll use a lot in a variety of circumstances. Here's what that looks like: 
@@ -49,12 +56,12 @@ paste("Hello", "Clemson Graduate Students")
 
 (@) Try it, add two strings together like the above example. 
 ```{r}
-
+paste("My name is", "Paige Magoto")
 ```
 
 (@) Can you explain what happened in 2-3 sentences? 
 
-> 
+> In the code box above, I used the fuction "paste()" to put twostirngs together. By putting these two strings, "My name is" and "Paige Magoto" together they show up in the console as 1 singuar output. The Singualr output was the full sentence "My name is Paige Magoto".
 
 The last type are **logical** values like `TRUE` and `FALSE`. (Note that these are all caps.)
 
@@ -94,11 +101,19 @@ Logical Operators allow you to combine or change the results of comparisons.
 ```
 (@) Explain, what does the code on each line above do? 
 
->
+> The 6 Lines above are logical values, they are comparing number inputs to oneanther to produce a TRUE or FALSE output.
+95= FALSE
+96= TRUE
+97= TRUE
+98= FALSE
+99= FALSE
+100= TRUE
 
 (@) Create your own comparison. 
 ```{r}
-
+3 == 2
+2 != 3
+3!= 3
 ```
 
 ---
@@ -134,13 +149,13 @@ Whatever you prefer, be consistent and your future self will thank you when your
 (@) You try, create a variable and assign it a number: 
 
 ```{r}
-
+my_age_is <- 23
 ```
 
 (@) Can you assign a string to a variable?
 
 ```{r}
-
+my_name_is <- "Paige Magoto"
 ```
 
 Once we've assigned a variable we can use that variable to run calculations just like we did with raw numbers.
@@ -162,22 +177,28 @@ My.Calculation <- (x + x)*10
 
 (@) You try. Assign a number to x and a number to y. Add those two numbers together.
 ```{r}
-
+x <- 2
+y <- 3
+x + y
 ```
 
 (@) Can you take `x` and `y` and multiply the result by 5? 
 ```{r}
-
+(x + y) * 5
 ```
 
 (@) Try creating two variables with names other than `x ` and `y`. Descriptive names tend to be more useful. Can you multiply the contents of your variables? 
 ```{r}
-
+my_age <- 23
+my_favorite_number <- 8
+my_age * my_favorite_number
 ```
 
 (@) Try creating two variables that store strings. Can you concatenate those two variables together? 
 ```{r}
-
+p <- "Hello everyone"
+m <- "in 8510 with me!"
+paste (p,m)
 ```
 
 ### Vectors
@@ -212,7 +233,7 @@ my.numbers * 2
 ```
 (@) Explain in a few sentences, what happened in the code above?
 
->
+>The variable my.numbers is actually a vector because it has more than one item, it contains 4 numbers. By multiplyin ght evector my.numbers by 2, each number tht is contained uner my.numbers is multiplied by two and the output is each number doubled. 
 
 Lets try something slightly different. 
 ```{r}
@@ -220,11 +241,12 @@ my.numbers[3] * 2
 ```
 (@) Explain in a few sentences, what happened in the code above? 
 
->
+> Above, the only number being multiplied by 2 is the 3rd number in th elist under the vector my.numbers. Therefore, 6 is the number in ht ethird position under my.numbers, so 6 is th eonly number being mulitplied by 2. The breackets [] determine whihc number/item in the vector is being targeted. 
 
 (@) You try, create a list of five items and store it in a descriptive variable. 
 ```{r}
-
+pages.read <- c(22, 65, 12, 8, 45)
+pages.read
 ```
 
 
@@ -256,14 +278,14 @@ We can ask R to pull up the documentation like this:
 
 (@) Now you try, find the documentation for the function  `signif()`.
 ```{r}
-
+?signif()
 ```
 
 In real life, you typically you wouldn't want to store this code in your script file. You probably don't need to pull up the documentation for the function every time you run that piece of code. But for the purposes of this worksheet we're adding it to our `.Rmd` document. 
 
 (@) Use the console to find the documentation for `floor()`? Try it and then tell me, what does that function do? 
 
->
+>floor takes a single numeric argument x and returns a numeric vector containing the largest integers not greater than the corresponding elements of x.
 
 ### Data Frames & Packages
 
@@ -301,7 +323,7 @@ What is going on here? Each line within this function (x,y,z) creates a new colu
 
 (@) What is going on in row z? Can you explain the logic here?
 
->
+>Row Z is multiplying row x by 2 and then adding y. 
 
 
 ## Loading Dataframes from Packages
@@ -321,9 +343,9 @@ What kind of datasets are available in this package? We can use the help documen
 
 Run `help(package="DigitalMethodsData")` in your console to pull up a list of datasets included in this package. 
 
-For demonstration purposes we'll use the `gayguides` data here. Pull up the help documentation for this dataset. What does the documentation tell you abou the scope of this dataset? 
+For demonstration purposes we'll use the `gayguides` data here. Pull up the help documentation for this dataset. What does the documentation tell you about the scope of this dataset? 
 
->
+>Originally it says "Bob Damron's Address Books" and then once clicked into it it says: "This dataset contains information transcribed from Bob Damron's Address Books from 1965 through 1985. Last updated December 2022."
 
 To use a dataset included in this package we first need to load it. We can do so like this:
 
@@ -341,17 +363,17 @@ That gives us the first 6 rows of data. Its really useful if you just want to pe
 
 (@) The default is to print six rows of data. Can you modify the above code to print out the first 10 rows? 
 ```{r}
-
+head(gayguides, n=10)
 ```
 
 (@) Can you find the last 6 rows of data? 
 ```{r}
-
+tail(gayguides)
 ```
 
 (@) Reflect on the previous two prompts. How did you figure these out? 
 
->
+>For the first 10 rows of the data set, I googled how to modify the head() funtion, and noticed you could modify it to any length of data. For the tail() fucntion I googled how to show the last 6 rows of a dataset in R.
 
 The `str()` function is another very useful function for understanding a dataset. It compactly displays the internal structure of an R object. 
 ```{r}
@@ -370,28 +392,34 @@ gayguides$title[500]
 
 (@) Break this down. Whats going on here? What do each of the elements of this code mean? (gayguides, $, title, and [500]) 
 
->
+> "gayguides" is the datat set, R is using this name to pull up the data to present. The $ tells R which segent of the data to pull up, so when paired with "title" the only datat thT is displayed from the datat set titile category. The [500] is referncing which line of the dataset that needs to be pulled up. the brackets help the user sort through large data sets by isolating one line of data and presenting it. 
 
 (@) The Year variable contains the year (numeric) of each entry. Can you find the earliest year in this dataset? (Using code, don't cheat and use the documentation!)
 ```{r}
-
+min(gayguides$Year)
 ```
 
 
 (@) How about the latest year? 
 ```{r}
-
+max(gayguides$Year)
 ```
 
 
 (@) Add another dataset from `DigitalMethodsData`. How many observations are included in this dataset? Run through some of the examples from above to learn about the dataset.
 ```{r}
-
+data(BostonWomenVoters)
+str(BostonWomenVoters)
+head(BostonWomenVoters)
+min(BostonWomenVoters$Date)
+max(BostonWomenVoters$Date)
+str(BostonWomenVoters)
+tail(BostonWomenVoters)
 ```
 
 (@) What did you learn about the dataset? What can you tell me about it? 
 
->
+> The most prominent thing I noticed from this dataset was using the tail() function, where I realized there were 10,702 women listed in this data set. 
 
 
 
