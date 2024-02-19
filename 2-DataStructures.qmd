@@ -376,14 +376,14 @@ data("statepopulations")
 range(statepopulations$X1800, na.rm = TRUE)
 
 for (p in 1:length(statepopulations$X1800)) {
-  population <- statepopulations$X1800[p]
-  if (is.na(population)) {
+  if (is.na(statepopulations$X1800[p])) {
     next  
   }
-  if (population < 200000) {
+  else if (statepopulations$X1800[p] < 200000) {
     next 
   }
-  if (population > 250000) {
+  else if (statepopulations$X1800[p] > 250000) {
+    next
   }
   print(statepopulations$STATE[p]) 
 }
@@ -509,11 +509,11 @@ print(GeorgeWashington)
 
 Here's a more complex example: 
 ```{r}
-gg.locations <- function (city, year) {
+gg.locations <- function (city, state, year) {
   data(gayguides)
 
   for (i in 1:length(gayguides$city)) {
-    if (gayguides$city[i] == city && gayguides$Year[i] == year) {
+    if (gayguides$city[i] == city && gayguides$state[i] == state && gayguides$Year[i] == year) {
      print(paste("Found a location called ", gayguides$title[i]))
     } else {
       next 
@@ -521,7 +521,7 @@ gg.locations <- function (city, year) {
   }
 }
 
-gg.locations("Greenville", 1985)
+gg.locations("Greenville", "SC",  1985)
 ```
 
 (@) Write a function that uses the things you've learned in this worksheet. The function should accept two arguments, city and year. It should pull all the locations in that city and year and return a statement that says "Found a location called xxx". (Where x is the title of a location in that year and city.) 
@@ -535,20 +535,20 @@ gg.locations("Washington", 1982)
 library(DigitalMethodsData)
 data("BostonWomenVoters")
 
-bwv.stateandoccupation <- function(State.or.Province.of.Birth, Occupation){
+bwv.stateandoccupation <- function(State.or.Province.of.Birth, occupation, age){
   data("BostonWomenVoters")
   
   for (n in 1:length(BostonWomenVoters$State.or.Province.of.Birth)){ 
-    if (BostonWomenVoters$State.or.Province.of.Birth[n] == State.or.Province.of.Birth && BostonWomenVoters$Occupation[n] == Occupation ){
-      print(paste(BostonWomenVoters$Name[n], "and she is a", Occupation, "she is also from", State.or.Province.of.Birth))
+    if (BostonWomenVoters$State.or.Province.of.Birth[n] == State.or.Province.of.Birth && BostonWomenVoters$Occupation[n] == occupation && BostonWomenVoters$Age[n] == age){
+      print(paste(BostonWomenVoters$Name[n], "and she is a", occupation, "she was born in", State.or.Province.of.Birth,".", "She is", age, "years old."))
     }
     }
 }
 
-bwv.stateandoccupation ("Massachusetts" , "Typist" )
-bwv.stateandoccupation ("North Carolina" , "housewife" )
-bwv.stateandoccupation ("Georgia" , "Housewife" )
-
+bwv.stateandoccupation ("Massachusetts" , "Tel. operator", 23 )
+bwv.stateandoccupation ("New Jersey" , "Widow", 50)
+bwv.stateandoccupation ("Pennsylvania" , "Housewife", 39 )
+#how would i get it do both iterations of housewife? 
 
 
 
