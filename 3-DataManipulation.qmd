@@ -97,14 +97,12 @@ gayguides %>%
 (@) Every entry in Greenville, SC between 1975 and 1980? 
 
 ```{r}
-gayguides %>%
-  filter(city == "Greenville" & state == "SC" & Year >= 1975 & Year <= 1980)
+gayguides %>% filter(city == "Greenville" & state == "SC" & Year >= 1975 & Year <= 1980)
 ```
 
 (@) Can you find all locations in 1975 except for New York and San Francisco? 
 ```{r}
-gayguides %>%
-  filter(Year >= 1975 & city != "New York" & city != "San Francisco")
+gayguides %>%  filter(Year >= 1975 & city != "New York" & city != "San Francisco")
 ```
 
 (@) The amenity features column in gay guides contains a comma separated list of categorizations. (G), for example, stands for girls. However, this language changed over time and women's locations eventually are described as (L). What if we want to filter by any entry that has (G) OR (L) in the amenity feature column?  This is a bit more complicated because the entries are a comma separated list and (G) or (L) is often paired with other categorizations. How might you _search the dataframe for entries that match_ (G) or (L)?
@@ -180,10 +178,8 @@ print(popsat1850)
 
 Arrange is useful for finding the highest and lowest values, but it returns those values for the entire dataset. `group_by()`, in contrast, takes an existing tbl and converts it into a grouped tbl where operations are performed "by group". Lets look at what that means in practice: 
 ```{r}
-mydata <- gayguides %>% 
-            select(title, Year) %>%
-            group_by(Year)
-print(mydata)
+Install.packages(“gapminder”)
+Library(gapminder)
 ```
 It doesn't appear that this did much. But if you hover over this new variable in your environment pane, you'll see that its now listed as a "grouped data frame." Compare that to `gayguides` which is listed as just a data frame. This means that now we can run calculations on this data and it'll perform them "by group". Or, in other words, it'll perform operations on each year within the dataset. That's where `summarize()` comes in. `summarize()` creates a new data frame with one (or more) rows for each combination of grouping variables. In this case our grouping is by year, so the resulting data frame will group records by each year in the `gayguides` dataset.
 
@@ -227,9 +223,9 @@ data("gayguides")
 avg.city.in.SC <- gayguides %>%
     select(state, city, Year, title) %>%
       filter(state == "SC" & Year >= 1970 & Year <= 1975) %>%
-        group_by(city) %>%
-          summarise(SC.loc.numbers = n()) %>% 
-            summarise(mean(SC.loc.numbers))
+        group_by(city,Year) %>%
+          summarise(avg.city.in.SC = n()) %>% 
+            summarise(mean(avg.city.in.SC))
 
 avg.city.in.SC
 ```
@@ -241,14 +237,12 @@ library(DigitalMethodsData)
 data("gayguides")
 avg.city.in.SC <- gayguides %>%
     select(state, city, Year, title) %>%
-      filter(state == southernstates & Year >= 1970 & Year <= 1975) %>%
-        group_by(city) %>%
+      filter(state %in% southernstates & Year == 1975)%>%
+        group_by(state, Year) %>%
           summarise(SC.loc.numbers = n()) %>% 
             summarise(mean(SC.loc.numbers))
 
 avg.city.in.SC
-
-#this would be above, except replace state = SC with this list... 
 ```
 
 ## Re-Shaping Data: Joins and Pivots
@@ -296,9 +290,7 @@ gayguides.plus.regions %>%
   select(Year, state, Region, title) %>% 
     filter(Year >= 1970 & Year <= 1980) %>% 
       group_by(Region, Year, state) %>% 
-        summarise(title = n()) %>% 
-          
-        
+        summarise(growth = n()) 
 ```
 
 
@@ -337,20 +329,9 @@ sc.parks %>%
 ```{r}
 
 wide.sc.parks <- sc.parks %>% 
-  pivot_wider(names_from = year, values_from = type_of_worker)
-
-#cant do this one
+  pivot_wider(names_from = year, values_from = count)
 
 ```
-
-
-(@) Turn `rec.spaces` into a wide dataframe. 
-```{r}
-rec.spaces.wider <- rec.spaces %>% 
-  pivot_wider()
-```
-
-
 ## Putting it all together
 Each of the functions covered in this worksheet are valuable tools for manipulating datasets. But they are more powerful when combined. When using them to pair down a dataset, we are asking and answering a question. For example in this code from earlier in our worksheet:
 ```{r}
@@ -373,7 +354,7 @@ data("judges")
 judges %>% 
   select(First.Name, Last.Name, Birth.State) %>% 
     filter(Birth.State == "NY") %>% 
-      summarize(Birth.State = n()) %>% 
+      summarize(Birth.State = n())
 ```
 
 (@) Now ask a question of the `gayguides` data (or another dataset of your choice). What is the question you are asking? 
@@ -413,14 +394,15 @@ library(DigitalMethodsData)
 data("gayguides")
 
 filter.gay.guides <- function(gg.year, gg.state) {
-  filtered.data <- gayguides %>%
+  filtered.gg <- gayguides %>%
     filter(Year == gg.year & state == gg.state) %>% 
       select(title, type, state, Year) %>% 
-  return(filtered.data)
+  return(filtered.gg)
 }
 
-filtered.data <- filter.gay.guides(1985,"NY")
-print(filtered.data)
+filter.gay.guides(1982,"OH")
+
+
 
 ```
 
