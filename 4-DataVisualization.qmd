@@ -46,15 +46,15 @@ library(DigitalMethodsData)
 data("gayguides")
 data("BostonWomenVoters")
 data("gapminder")
-#p <- ggplot(data = gapminder)
+p <- ggplot(data = gapminder)
 `````````
 
 What happened here? A new variable, `p` was created but we didn't get a plot yet. That is because we've told `ggplot` what data we're going to use but we haven't mapped anything to a plot yet. We need to tell `ggplot` what variables in the data should be represented by which visual elements in the plot. We also haven't told it what kind of plot we want. 
 
 Mappings in `ggplot` are defined using the `aes()` function like this: 
 ```{r}
-#p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp))
-#p
+p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp))
+p
 
 `````````
 
@@ -65,26 +65,26 @@ There are numerous types of aesthetic mappings. x and y values are the most comm
 We can view the plot that we've created by calling the variable that we stored our plot in, `p`. What we get is an empty plot. You'll notice that ggplot has created both the x and y-axis for us but there are not points on our plot. That is because we need to add a layer to the plot that includes the data. `geom_point()` helps us do that. It takes the x and y values and plots them in a scatterplot. 
 
 ```{r}
-#p + geom_point()
+p + geom_point()
 ```
 
 To summarize what we did above, there were 3 steps we went through. First, tell `ggplot()` what our data is. Second, add `mapping = aes()` to map our variables to the plot. And, third, choose a geom. In this case our geom was `geom_point()` which created the points/data layer on our plot. A fourth step could have included adding a scale, legend, title or some other element to the graph. These are typically referred to as labs. 
 
 (@) Modify the above plot so that the variables it draws on are life expectancy and population. Then, use a comment to annotate the code and mark each of the 3 parts described above.
 ```{r}
-#q <- ggplot(data = gapminder, mapping = aes(x = pop, y = lifeExp)) 
-#q + geom_point()
+q <- ggplot(data = gapminder, mapping = aes(x = pop, y = lifeExp)) 
+q + geom_point()
 ```
 
 We can make this plot even more complex. Adding another value, color, to `aes()` we can change the color of each dot to correspond to a year. We also might want to rename the x and y-axis so that the labels have a more useful description of the variable. We can do so using the labs function. 
 
 ```{r}
-#ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp, color=year)) + geom_point() + labs(x="GDP Per Capita", y="Life Expectency in Years", title="Life Expectency and Per Capita GDP by Year") 
+ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp, color=year)) + geom_point() + labs(x="GDP Per Capita", y="Life Expectency in Years", title="Life Expectency and Per Capita GDP by Year") 
 ```
 
 (@) Using the same plot above, can you edit the code to add a trend line? (Hint: You'll need to add another geom)
 ```{r}
-#ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp, color=year)) + geom_point() +  geom_smooth(method=lm) + labs(x="GDP Per Capita", y="Life Expectency in Years", title="Life Expectency and Per Capita GDP by Year") 
+ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp, color=year)) + geom_point() +  geom_smooth(method=lm) + labs(x="GDP Per Capita", y="Life Expectency in Years", title="Life Expectency and Per Capita GDP by Year") 
 ```
 
 
