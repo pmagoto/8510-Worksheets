@@ -1,0 +1,92 @@
+---
+title: "Analysis-Checklist"
+author: "Paige Magoto"
+format: html
+editor: visual
+---
+
+## Exploratory Data Analysis Checklist:
+
+1.  Formulate your question
+
+    a\. Which state was the most common birthplace for judges in this data set?
+
+    b\. Whats the most common reason for termination, if any?
+
+    c\. Number of male vs female?
+
+2.  Read in your data
+
+    ```{r}
+    library(DigitalMethodsData)
+    data("judges")
+    library(tidyverse)
+    ```
+
+3.  Check the packaging
+
+    ```{r}
+    nrow(judges)
+    ncol(judges)
+    ```
+
+4.  Run `str()`
+
+    ```{r}
+    str(judges)
+    ```
+
+5.  Look at the top and the bottom of your data
+
+    ```{r}
+    head(judges)
+    tail(judges)
+    ```
+
+6.  Check your “n”s
+
+    ```{r}
+    judge.state <- judges %>% select(Last.Name, First.Name, Middle.Name, Birth.State) 
+    select(judges, Birth.State) %>% nrow
+    unique(judges$Birth.State)
+    ```
+
+    ```{r}
+    judge.termination <- judges %>% select(Last.Name, First.Name, Middle.Name, Termination..1., Termination..2., Termination..3., Termination..4., Termination..5., Termination..6.)
+    unique(judges$Termination..1.)
+    unique(judges$Termination..2.)
+    unique(judges$Termination..3.)
+    unique(judges$Termination..4.)
+    unique(judges$Termination..5.)
+    unique(judges$Termination..6.)
+    select(judges,Termination..1., Termination..2., Termination..3., Termination..4., Termination..5., Termination..6.)
+
+    ```
+
+    ```{r}
+    judge.gender <- judges %>% select(Last.Name, First.Name, Middle.Name, Gender)
+    unique(judges$Gender)
+    ```
+
+7.  Validate with at least one external data source
+
+    I goggled a few of the Judges birth places.
+
+8.  Try the easy solution first
+
+    ```{r}
+    #state/region
+    state.rank<- judge.state %>% group_by(Birth.State) %>% summarise(count =n()) %>% arrange(count)
+    # reason for termination 
+    term.rank <- judge.termination %>% group_by(Termination..1., Termination..2., Termination..3., Termination..4., Termination..5., Termination..6.) %>% summarise(count = n())
+    #does not work above^^
+    #gender
+    gender.judge <- judge.gender %>% group_by(Gender) %>% summarise(count = n())
+    ```
+
+9.  Challenge your solution
+
+    ```{r}
+    gender.counts <- judges %>% group_by(Birth.Year, Gender) %>% summarise(count = n()) %>% pivot_wider(names_from = Gender, values_from = count, values_fill = 0)
+    #This data frame uses similar ideas from before, but gives mroe valueable information. 
+    ```
