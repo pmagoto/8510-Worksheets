@@ -1,7 +1,7 @@
 ---
 title: 'Worksheet 6: Text Analysis'
-author: ''
-date: ''
+author: 'Paige Magoto'
+date: '4-3-22'
 ---
 
 _This is the sixth in a series of worksheets for History 8510 at Clemson University. The goal of these worksheets is simple: practice, practice, practice. The worksheet introduces concepts and techniques and includes prompts for you to practice in this interactive document. When you are finished, you should change the author name (above), knit your document, and upload it to canvas. Don't forget to commit your changes as you go and push to github when you finish the worksheet._
@@ -13,13 +13,17 @@ Text analysis is an umbrella for a number of different methodologies. Generally 
   1. Acquiring a corpus
   2. Preparing the text or Pre-processing
   3. Choosing an analytical tool 
-    * (There are many different tools or methods for text analysis. Take a minute and Google        each of these methodologies: tf-idf, topic modeling, sentiment analysis, word vector            analysis, n-grams)
+    * (There are many different tools or methods for text analysis. Take a minute and Google each of these methodologies: tf-idf, topic modeling, sentiment analysis, word vector analysis, n-grams)
   4. Analyzing the results
   
 In this worksheet we are focusing on basic text analysis. We'll learn how to load textual data into R, how to prepare it, and then how to analyze it using tf-idf or term-frequency according to inverse document frequency. 
 
 Before doing too much, lets load a few relevant libraries. The last few you will likely need to install.
 ```{r message=FALSE, warning=FALSE}
+#install.packages("tidytext")
+#install.packages("readtext")
+#install.packages("widyr")
+#install.packages("SnowballC")
 library(tidyverse)
 library(tidytext) 
 library(readtext)
@@ -32,6 +36,7 @@ library(SnowballC)
 
 First, lets install the State of the Union package. This package contains text of all the state of the Union addresses from Washington to Trump. Run `install.packages` to install the `sotu` package. 
 ```{r}
+#install.packages("sotu")
 library(sotu)
 ```
 
@@ -123,7 +128,8 @@ head(sotu_bigrams$bigram)
 
 (@) Use `unest_tokens()` to create tri-grams. 
 ```{r}
-
+sotu_trigrams <- sotu_whole %>% unnest_tokens(trigram, text, token = "ngrams", n = 3)
+head(sotu_trigrams$trigram)
 ```
 
 ### Stopwords
@@ -186,6 +192,7 @@ sotu_whole <-
 tidy_sotu <- sotu_whole %>%
   unnest_tokens(word, text) %>% 
   anti_join(stop_words)
+head(tidy_sotu)
 ```
 (@) Before we move forward, take a minute a describe the chunk of code you just ran. What does each section do and how does it reflect the workflow for a topic modeling project? What are the important steps that are unique to topic modeling? 
 
@@ -228,12 +235,20 @@ tidy_sotu %>%
 
 (@) Think back to the metadata that we loaded about these speeches. Why are more modern president's state of the union addresses shorter? 
 
->
+> According to the metadata, some of the stou addresses are written and some are spoken. Its possibel that people wre writing longer addresses rather than those that will be spoken and preformed in front of an audience. 
 
 (@) Filter the dataset to address this discrepancy and the recreate these statistics: 
 ```{r}
-
+sotu_year <- tidy_sotu_words %>% group_by(year)%>% summarise(count = n())
+sotu_speech <- tidy_sotu_words %>% group_by(year)%>% filter(sotu_type == "speech")  %>% summarise(speech = n())
+sotu_written <- tidy_sotu_words %>% group_by(year) %>% filter(sotu_type == "written") %>% summarise(written = n())
+sotu_all <- left_join(sotu_speech, sotu_written, by = "year") 
+sotu_longer <- pivot_longer(sotu_all, !year, names_to = "type.of.speech", values_to = "count")
+ggplot(data = sotu_longer, mapping = aes(x = year, y= count, group = type.of.speech, color = type.of.speech)) + geom_line() + labs( x = "Year", y= "Number of Words per State of the Union", title = "Number of Words in state of the Union over time by type of Address", color = "Type of Adress") + theme(plot.title = element_text(hjust = 0.5)) + theme_dark() + geom_point()
 ```
+> above shows the idfferntce, while displaying all the data
+
+
 
 ### Term Frequency
 Often, the raw frequency of a term is not as useful as relative frequency. In other words, how often that word appears relative to the total number of words in a text. This ratio is called **term frequency**. 
@@ -247,6 +262,8 @@ tidy_sotu_rel.freq <- tidy_sotu %>%
   group_by(doc_id) %>% 
   mutate(n_tot = sum(n), # count total number of words per doc
          term_freq = n/n_tot)
+
+head(tidy_sotu_rel.freq)
 ```
 
 We can assume that words with a high frequency in the text are more important or significant. Here we can find the words with the most significance for each president: 
@@ -262,7 +279,14 @@ tidy_sotu %>%
 ```
 (@) The code above is commented to help you follow it. Walk through the code above, and explain what each line does in your own words. If its a function you are unfamiliar with, look up the documentation.
 
-> 
+> tidy_sotu %>%
+  count(president, word)  %>%  # counting each word in the parameters of of the presidents
+  group_by(president) %>% 
+  mutate(n_tot = sum(n), # creating a new column 
+         term_freq = n/n_tot) %>% # this new column shows the frewuency of the word used grouped by president 
+  arrange(desc(term_freq)) %>% # sort by term frequency
+  top_n(1) %>%  # take the top for each president, shows the most ued wor by each president
+  print(n = Inf) # print all rows
 
 ### TF-IDF
 
@@ -301,6 +325,13 @@ sotu.tf.idf %>% arrange(desc(tf_idf))
 (@) Pick a president who served more than one term. Filter the dataset and generate both raw word counts and tf-idf scores for that president. What words are most significant in each method? Why and what does that tell you about that president? 
 
 ```{r}
+jimmycarter.sotu <- tidy_sotu %>% filter(president == "Jimmy Carter") %>% group_by(president, word) %>% count(president, word, sort = TRUE)
+
+jimmycarter.tfidf <- tidy_sotu %>% filter(president == "Jimmy Carter") %>%  group_by(doc_id, word) %>% count(doc_id, word, sort = TRUE) %>% bind_tf_idf(word, doc_id, n)
+
+jimmycarter <- merge(jimmycarter.sotu, jimmycarter.tfidf, by = "word")
+
+#Jimmy carter's most used word by count is congress in all of his speeches, but the word used the most in one singular speech is actually afghanistan. 
 
 ```
 
@@ -336,23 +367,120 @@ sotu_word_pairs %>%
 ```
 (@) Create a network graph that shows the relationship between words that appear between 125 and 175 times.
 ```{r}
-
+sotu_word_pairs %>% 
+  filter(n >= 125 & n <= 175) %>%  # only word pairs that occur 200 or more times
+  graph_from_data_frame() %>% #convert to graph
+  ggraph(layout = "fr") + # place nodes according to the force-directed algorithm of Fruchterman and Reingold
+  geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = "pink") +
+  geom_node_point(size = 5) +
+  geom_node_text(aes(label = name), repel = TRUE, 
+                 point.padding = unit(0.2, "lines")) +
+  theme_dark()
 ```
 
-## Analyzing Historical Journals
+## Analyzing Historical Newspapers About Buffalo Bill
 
-In the github repository below I have included the text and metadata for a journal called _Mind and Body_ which ran from the 1890s until the late 1930s and chronicled the development of the physical education profession. This dataset was OCR'd from copies stored in Google Books. Using the metadata provided and the raw text files can you use what you learned above to analyze these texts? What historical conclusions might you be able to draw?
+To practice text analysis this week you will be helping Dr. Seefeldt with his research. In the github repository below I have included a metadata file containing all of the associated info from each article and a txt folder with each text file. 
 
+The dataset is described by Dr. Seefeldt this way: 
+> The project staff identified 99 visits to Indiana communities, some of which included performances spanning two or more days.  We located and captured a total of 720 Indiana newspaper pieces, including 273 articles promoting specific Wild West performances, 74 substantive pieces documenting locally-based reception to these performances, and 373 extraneous items, including advertisements, images, and reprints of articles generated elsewhere.  In total, the team transcribed approximately 740 items (R = Reception; P = Promotion; E = Extraneous)
+
+Use this link to read more about the project and the historical context: [https://docs.google.com/document/d/1LnmyCob5zc984EkMAx3sXlXQqhNbm9O8XV4O3HrQUbQ/edit?usp=sharing](https://docs.google.com/document/d/1LnmyCob5zc984EkMAx3sXlXQqhNbm9O8XV4O3HrQUbQ/edit?usp=sharing)
+
+You should use the rest of this worksheet to practice text analysis (and R more broadly) by exploring this dataset. Using the metadata provided and the raw text files can you use what you learned above to analyze these texts? What historical conclusions might you be able to draw? Perform the textual analysis and then write up your findings for Dr. Seefeldt. What might he be able to draw from this analysis? I will then take your work, compile it, and share it with him. Here are 3 research questions to get started. You can use one of these or come up with your own. 
+
+* Is there a difference in promotion language vs. reception language. In other words, what was BBWW selling and what did Indiana newspapers find remarkable.
+* Can we detect some change over time in promotion language and reception language (marketing and reviewing)? Were there types of characters, scenarios, action promised in promotional material and/or noted in reviews earlier vs later?
+* What can be gleaned from the items tagged as extraneous as far as topics? These are news items that are somehow related to BBWW. Crime, finances, celebrity, etc.
+
+
+Write up a research plan in the space below. What are you looking to explore?
+
+> 
+
+Lets download the data. 
 ```{r}
 #| eval: false
 #zip file of all the .txt files. One for each issue. 
-download.file("https://github.com/regan008/8510-TextAnalysisData/blob/main/txt.zip?raw=true", "MindAndBody.zip")
-unzip("MindAndBody.zip")
+download.file("https://github.com/dseefeldt/IndianaNewspapers/raw/main/bb-txt.zip", "bb-txt.zip")
+unzip("bb-txt.zip")
 
-# Metadata that includes info about each issue.
-metadata <- read.csv("https://raw.githubusercontent.com/regan008/8510-TextAnalysisData/main/Metadata.csv")
+# Metadata that includes info about each article.
+bb.metadata <- read.csv("https://raw.githubusercontent.com/dseefeldt/IndianaNewspapers/main/metadata.csv")
 ```
 
-(@) Add code chunks below and intersperse text to explain what you are doing and why. 
+(@) There are a few problems with this metadata from a tidy data perspective. First the date column isn't useful for assessing change over time. Can you split it into 3 columns one for year, month, and day? This will be useful if you want to try and identify change over time. Use the Date column not the FullDate column. This column is messy and you'll need to clean it up in order to have useful data. 
+```{r}
+library(tidyverse)
+library(lubridate)
+
+bb.metadata.correct <- bb.metadata %>% mutate(Date = mdy(Date), day = day(Date), month = month(Date, label = TRUE), year = year(Date))
+```
+
+(@) Now lets load the BB data. This happens in a slightly different way than with the SOTU data since its local data and not data from an R package. 
+```{r}
+data_dir <- paste(getwd(), "/txt", sep = "")
+bb <- readtext(paste0(data_dir, "/*.txt"))
+```
+
+(@) Now you need to join this with the metadata for each file. Note that doc_id and Filename are the same value. How would you join two datasets together in R so that you can proceed with textual analysis? 
+```{r}
+correct.bb.metadata <- bb.metadata.correct %>% rename(doc_id = Filename)
+fullbbdata <- inner_join(correct.bb.metadata, bb, by = "doc_id") %>% as_tibble()
+bb.stopwords <- stop_words %>% add_row(word="Buffalo", lexicon="NA") %>% add_row(word="Bill", lexicon="NA") %>% add_row(word="Cody", lexicon="NA") %>% add_row(word="bill", lexicon="NA") %>% add_row(word="buffalo", lexicon="NA") %>% add_row(word="cody", lexicon="NA")
+tidybb <- fullbbdata %>% unnest_tokens(word, text) %>% anti_join(bb.stopwords) %>% group_by(doc_id, Date, Publication, year) %>% count(word, sort = TRUE)
+bb.tfidf <- tidybb %>% bind_tf_idf(word, doc_id, n)
+```
+
+(@) Now you can begin your textual analysis for Dr. S. Add code chunks below and intersperse text to explain what you are doing and why in the text of the worksheet. 
+```{r}
+#1896 had the most unique words in the corpus, so i decided to research this one longer. 
+bb1896 <- bb.tfidf %>% filter(year == 1896)
+
+```
+
+```{r}
+#comparing the use of city and wild through the years
+bb.tfidf %>%
+  filter(word %in% c("city", "wild")) %>% 
+  count(year, word) %>% 
+  ggplot(aes(year, n, fill = word)) +
+    geom_col(position = "fill")
+```
+
+```{r}
+#use of the word city and indian at the same time
+bb.tfidf %>%
+  filter(word %in% c("indian", "city")) %>% 
+  count(year, word) %>% 
+  ggplot(aes(year, n, fill = word)) +
+    geom_col(position = "fill")
+```
+
+```{r}
+indian <- tidybb %>% group_by(year) %>% filter(word == "indian")  %>% summarise(count.indian = n())
+wild <- tidybb %>% group_by(year) %>% filter(word == "wild") %>% summarise(count.wild = n())
+indian.wild <- merge(indian, wild, by = "year")
+longer.indian.wild <- pivot_longer(indian.wild, !year, names_to = "word", values_to = "count")
+ggplot(data = longer.indian.wild, mapping = aes(x = year, y= count, group = word, color = word)) + geom_line() + labs( x = "Year", y= "Use of Words", title = "Use of the Words Indian and Wild over time", color = "Word") + theme(plot.title = element_text(hjust = 0.5)) + theme_dark() + geom_point()
+```
+
+
+(@) Finally, when you are all done. Write up your findings. What research question did you focus on and what did you learn? 
+
+I explored the use of the words "indian" and "wild" throughout the years. With this final visualization, you can see that there is a positive correlation between the use of "Indian" and "Wild", and you can conclude they were often used within the same context using this visualization. This could be offset by the use of the word west, as often times wild west is a term used in this type of literature. The Graph below concludes that yes, wild and west are OFTEN used together, but they are still associated with indian.
+
+```{r}
+west <- wild <- tidybb %>% group_by(year) %>% filter(word == "west") %>% summarise(count.wild = n())
+indian.wild.west <- merge(west, indian.wild, by ="year")
+longer.indian.wild.west <- pivot_longer(indian.wild.west, !year, names_to = "word", values_to = "count")
+ggplot(data = longer.indian.wild.west, mapping = aes(x = year, y= count, group = word, color = word)) + geom_line() + labs( x = "Year", y= "Use of Words", title = "Use of the Words Indian, Wild, and West over time", color = "Word") + theme(plot.title = element_text(hjust = 0.5)) + theme_dark() + geom_point()
+```
+
+
+
+
+
+
 
 
