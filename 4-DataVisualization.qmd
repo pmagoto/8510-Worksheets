@@ -53,6 +53,7 @@ What happened here? A new variable, `p` was created but we didn't get a plot yet
 Mappings in `ggplot` are defined using the `aes()` function like this: 
 ```{r}
 p <- ggplot(data = gapminder, mapping = aes(x = gdpPercap, y=lifeExp))
+# adding a comment to test -AR
 p
 ```
 
